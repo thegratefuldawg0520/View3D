@@ -1,7 +1,7 @@
 import cv2
 import matching as mt
-import imagek as im
-import numpy as np
+import image as im
+import imageUtility as ut
 
 class transformation(object):
 	
@@ -40,7 +40,19 @@ class homography(transformation):
 		
 	def _computeHomography(self,params):
 	
-		img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches.matches ]).reshape(-1,1,2)
-		img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches.matches ]).reshape(-1,1,2)
+		img1pts = self.matches.matchPoints['img1']
+		img2pts = self.matches.matchPoints['img2']
 		
-		return cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)
+		return cv2.findHomography(img1pts, img2pts, cv2.RANSAC, 5.0)
+
+if __name__ == '__main__':
+
+	params = {'kp':'sift','scale':0.15}
+	
+	
+	x = homography('/home/dennis/Documents/View3D/DJI02217.JPG','/home/dennis/Documents/View3D/DJI02218.JPG',params)
+	
+	kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
+	kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])
+	
+	x.matches.drawMatches()

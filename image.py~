@@ -4,8 +4,7 @@ class image(object):
 
 	def __init__(self, img, params):
 		
-		tempImg = cv2.imread(img)
-		self.img = cv2.resize(tempImg, None, fx=params['scale'], fy=params['scale'], interpolation=cv2.INTER_AREA)
+		self.img = cv2.resize(img, None, fx=params['scale'], fy=params['scale'], interpolation=cv2.INTER_AREA)
 		self.params = params
 		self.detector = self._getDetector(self.params)
 		self.keypoints = self._getKeypoints()

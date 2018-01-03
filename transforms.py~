@@ -1,6 +1,6 @@
 import cv2
 import matching as mt
-import image as im
+import imagek as im
 import numpy as np
 
 class transformation(object):
@@ -41,16 +41,6 @@ class homography(transformation):
 	def _computeHomography(self,params):
 	
 		img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches.matches ]).reshape(-1,1,2)
-		img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches.matches ]).reshape(-1,1,2)		
-			
+		img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches.matches ]).reshape(-1,1,2)
+		
 		return cv2.findHomography(img1_pts, img2_pts, cv2.RANSAC, 5.0)
-	
-if __name__ == '__main__':
-
-	params = {'kp':'surf','scale':0.15}
-	
-	img1 = '/home/doopy/Documents/View3D/View3D_0_1/0214.JPG'
-	img2 = '/home/doopy/Documents/View3D/View3D_0_1/0215.JPG'
-	
-	homography = homography(img1, img2, params)
-	print homography.imageNames()

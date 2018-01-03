@@ -1,22 +1,21 @@
 import cv2
-import numpy as np
+import keypoints as kp
 
 class matches(object):
 
-	def __init__(self,img1,img2,params):
+	def __init__(self,lImage,rImage,params):
 		
-		self.img1 = img1
-		self.img2 = img2
+		self.lImage = lImage
+		self.rImage = rImage
 		self.params = params
 		self.matches = self._getMatches()
-		self.matchPoints = self._sortMatchPoints()
 		
 	def _getMatches(self):
 	
 		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
 			
 			bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-			binMatch = bf.match(self.img1.descriptors,self.img2.descriptors)
+			binMatch = bf.match(self.lImage.descriptors,self.rImage.descriptors)
 			
 			good = []
 			
@@ -33,7 +32,7 @@ class matches(object):
 			index_params = dict(algorithm = 0, trees = 5)
 			search_params = dict(checks=50)
 			flann = cv2.FlannBasedMatcher(index_params, search_params)
-			flannMatch = flann.knnMatch(self.img1.descriptors, self.img2.descriptors, k=2)
+			flannMatch = flann.knnMatch(self.lImage.descriptors, self.rImage.descriptors, k=2)
 			
 			good = []
 			
@@ -41,17 +40,10 @@ class matches(object):
 			
 				if m.distance < 0.75*n.distance:
 					
-					good.append(m)
+					good.append([m])
 			
 			return good
 
-	def _sortMatchPoints(self):
-		
-		img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches]).reshape(-1,1,2)
-		img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches]).reshape(-1,1,2)
-		
-		return {'img1':img1_pts,'img2':img2_pts}
-		
 	def drawMatches(self):
 	
 		if self.matches == None:
@@ -62,14 +54,30 @@ class matches(object):
 			
 			if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
 				
-				img = cv2.drawMatches(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches[:30], None,flags=2)
-		
+				print self.matches
+				img = cv2.drawMatches(self.lImage.image,self.lImage.keypoints,self.rImage.image,self.rImage.keypoints,self.matches, None,flags=2)
+				for i in self.rImage.keypoints:
+				
+					print i.pt
+				
 			elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf':
 		
-				img = cv2.drawMatchesKnn(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches, None,flags=2)
+				img = cv2.drawMatchesKnn(self.lImage.image,self.lImage.keypoints,self.rImage.image,self.rImage.keypoints,self.matches[:10], None,flags=2)
 				
 			cv2.imshow("Matches", img)
 			cv2.waitKey()
 			cv2.destroyAllWindows()		
 
+if __name__ == '__main__':
+
+	param = {'kp':'surf','scale':0.15}
+	
+	imgr = kp.keypoints(cv2.imread('/home/doopy/Documents/View3D/View3D_0_1/0214.JPG'),param)
+	imgl = kp.keypoints(cv2.imread('/home/doopy/Documents/View3D/View3D_0_1/0215.JPG'),param)
+	
+	rlMatch = matches(imgl,imgr,param)
+	
+	rlMatch.drawMatches()
+	
+			
 
