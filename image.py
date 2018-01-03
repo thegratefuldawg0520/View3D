@@ -30,6 +30,10 @@ class image(object):
 		
 			return cv2.BRISK_create()
 
+		elif params['kp'] == 'kaze':
+			
+			return cv2.KAZE_create()
+			
 	def _getKeypoints(self):
 	
 		return self.detector.detect(self.img,None)

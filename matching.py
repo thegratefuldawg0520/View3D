@@ -28,7 +28,7 @@ class matches(object):
 					
 			return good
 			
-		elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf':
+		elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf' or self.params['kp'] == 'kaze':
 		
 			index_params = dict(algorithm = 0, trees = 5)
 			search_params = dict(checks=50)
@@ -41,15 +41,22 @@ class matches(object):
 			
 				if m.distance < 0.75*n.distance:
 					
-					good.append(m)
+					good.append([m])
 			
 			return good
 
 	def _sortMatchPoints(self):
 		
-		img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches]).reshape(-1,1,2)
-		img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches]).reshape(-1,1,2)
+		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
+			
+			img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches]).reshape(-1,1,2)
+			img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches]).reshape(-1,1,2)
 		
+		else:
+		
+			img1_pts = np.float32([ self.img1.keypoints[match[0].queryIdx].pt for match in self.matches]).reshape(-1,1,2)
+			img2_pts = np.float32([ self.img2.keypoints[match[0].trainIdx].pt for match in self.matches]).reshape(-1,1,2)
+			
 		return {'img1':img1_pts,'img2':img2_pts}
 		
 	def drawMatches(self):
@@ -64,9 +71,9 @@ class matches(object):
 				
 				img = cv2.drawMatches(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches[:30], None,flags=2)
 		
-			elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf':
+			elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf' or self.params['kp'] == 'kaze':
 		
-				img = cv2.drawMatchesKnn(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches, None,flags=2)
+				img = cv2.drawMatchesKnn(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches[:30], None,flags=2)
 				
 			cv2.imshow("Matches", img)
 			cv2.waitKey()

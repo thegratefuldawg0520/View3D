@@ -47,12 +47,18 @@ class homography(transformation):
 
 if __name__ == '__main__':
 
-	params = {'kp':'sift','scale':0.15}
+	descList = ['kaze','sift','surf','brisk','orb']
+	params = {'scale':0.15}
+	
+	homographies = []
+	
+	for desc in descList:
+		
+		params['kp'] = desc
+		homographies.append(homography('/home/dennis/Documents/View3D/DJI02217.JPG','/home/dennis/Documents/View3D/DJI02218.JPG',params))
+		homographies[-1].matches.drawMatches()
+		
+	#kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
+	#kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])
 	
 	
-	x = homography('/home/dennis/Documents/View3D/DJI02217.JPG','/home/dennis/Documents/View3D/DJI02218.JPG',params)
-	
-	kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
-	kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])
-	
-	x.matches.drawMatches()
