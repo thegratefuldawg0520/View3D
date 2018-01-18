@@ -47,7 +47,7 @@ class matches(object):
 
 	def _sortMatchPoints(self):
 		
-		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
+		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk' or self.params['kp'] == 'freak' or self.params['kp'] == 'lucid':
 			
 			img1_pts = np.float32([ self.img1.keypoints[match.queryIdx].pt for match in self.matches]).reshape(-1,1,2)
 			img2_pts = np.float32([ self.img2.keypoints[match.trainIdx].pt for match in self.matches]).reshape(-1,1,2)

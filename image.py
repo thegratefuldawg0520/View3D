@@ -33,6 +33,18 @@ class image(object):
 		elif params['kp'] == 'kaze':
 			
 			return cv2.KAZE_create()
+
+		elif params['kp'] == 'daisy':
+			
+			return cv2.DAISY_create()
+
+		elif params['kp'] == 'freak':
+			
+			return cv2.FREAK_create()
+
+		elif params['kp'] == 'lucid':
+			
+			return cv2.LUCID_create()		
 			
 	def _getKeypoints(self):
 	
