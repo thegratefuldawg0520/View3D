@@ -67,11 +67,11 @@ class matches(object):
 			
 		else:
 			
-			if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
+			if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk' or self.params['kp'] == 'lucid' or self.params['kp'] == 'freak':
 				
 				img = cv2.drawMatches(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches[:30], None,flags=2)
 		
-			elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf' or self.params['kp'] == 'kaze':
+			elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf' or self.params['kp'] == 'kaze' or self.params['kp'] == 'daisy':
 		
 				img = cv2.drawMatchesKnn(self.img1.img,self.img1.keypoints,self.img2.img,self.img2.keypoints,self.matches[:30], None,flags=2)
 				

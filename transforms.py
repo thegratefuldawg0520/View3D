@@ -2,6 +2,7 @@ import cv2
 import matching as mt
 import image as im
 import imageUtility as ut
+import time
 
 class transformation(object):
 	
@@ -61,19 +62,23 @@ class fundamental(transformation):
 		
 if __name__ == '__main__':
 
-	descList = ['kaze','sift','surf','brisk']
-	temp = ['orb','daisy','kaze','freak','lucid']
-		
+	descList = ['sift','surf','brisk','orb','kaze','daisy','lucid']
+	
+	#All other descriptors can take a bgr image as input, freak requires a grayscale image
+	#not_working = [freak]
+	
 	params = {'scale':0.15}
 	
 	fundamentals = []
 	
 	for desc in descList:
 		
+		t0 = time.time()
 		params['kp'] = desc
 		print desc
-		fundamentals.append(fundamental('/home/doopy/Documents/View3D/View3D_0_1/0214.JPG','/home/doopy/Documents/View3D/View3D_0_1/0215.JPG',params))
-		print fundamentals[-1].fundamental[1]
+		fundamentals.append(fundamental('/home/dennis/Documents/View3D/DJI01435.JPG','/home/dennis/Documents/View3D/DJI01436.JPG',params))
+		t1 = time.time()
+		print desc + ' runtime: ' + str(t1 - t0)
 		fundamentals[-1].matches.drawMatches()
 		
 	#kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
