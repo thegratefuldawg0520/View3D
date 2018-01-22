@@ -36,7 +36,7 @@ class homography(transformation):
 	def __init__(self, img1, img2, params, matches=None):
 	
 		super(homography,self).__init__(img1, img2, params, matches)
-		self.homography = self._computeHomography(params)
+		self.homography,self.bitmask = self._computeHomography(params)
 		
 	def _computeHomography(self,params):
 	
@@ -45,18 +45,36 @@ class homography(transformation):
 		
 		return cv2.findHomography(img1pts, img2pts, cv2.RANSAC, 5.0)
 
+class fundamental(transformation):
+	
+	def __init__(self, img1, img2, params, matches=None):
+	
+		super(fundamental,self).__init__(img1, img2, params, matches)
+		self.fundamental,self.bitmask = self._computeFundamental(params)
+		
+	def _computeFundamental(self,params):
+	
+		img1pts = self.matches.matchPoints['img1']
+		img2pts = self.matches.matchPoints['img2']
+		
+		return cv2.findFundamentalMat(img1pts, img2pts, cv2.RANSAC)
+		
 if __name__ == '__main__':
 
-	descList = ['kaze','sift','surf','brisk','orb']
+	descList = ['kaze','sift','surf','brisk']
+	temp = ['orb','daisy','kaze','freak','lucid']
+		
 	params = {'scale':0.15}
 	
-	homographies = []
+	fundamentals = []
 	
 	for desc in descList:
 		
 		params['kp'] = desc
-		homographies.append(homography('/home/dennis/Documents/View3D/DJI02217.JPG','/home/dennis/Documents/View3D/DJI02218.JPG',params))
-		homographies[-1].matches.drawMatches()
+		print desc
+		fundamentals.append(fundamental('/home/doopy/Documents/View3D/View3D_0_1/0214.JPG','/home/doopy/Documents/View3D/View3D_0_1/0215.JPG',params))
+		print fundamentals[-1].fundamental[1]
+		fundamentals[-1].matches.drawMatches()
 		
 	#kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
 	#kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])

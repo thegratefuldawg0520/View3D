@@ -13,7 +13,7 @@ class matches(object):
 		
 	def _getMatches(self):
 	
-		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk':
+		if self.params['kp'] == 'orb' or self.params['kp'] == 'brisk' or self.params['kp'] == 'freak' or self.params['kp'] == 'lucid':
 			
 			bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 			binMatch = bf.match(self.img1.descriptors,self.img2.descriptors)
@@ -28,7 +28,7 @@ class matches(object):
 					
 			return good
 			
-		elif self.params['kp'] == 'sift' or self.params['kp'] == 'surf' or self.params['kp'] == 'kaze':
+		else:
 		
 			index_params = dict(algorithm = 0, trees = 5)
 			search_params = dict(checks=50)
