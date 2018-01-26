@@ -47,21 +47,14 @@ class image(object):
 
 		elif params['kp'] == 'daisy':
 			
-			#Currently the daisy.detect is throwing an error consistent with detectors that do not have an associated descriptor
-			#OpenCV Error: The function/feature is not implemented () in detectAndCompute
-			
 			return cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6),cv2.xfeatures2d.DAISY_create(radius=15,q_radius=3,q_theta=8,q_hist=8)
 
 		elif params['kp'] == 'freak':
 			
-			#Currently the daisy.detect is throwing an error consistent with detectors that do not have an associated descriptor
-			#OpenCV Error: The function/feature is not implemented () in detectAndCompute
 			return cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6),cv2.xfeatures2d.FREAK_create(patternScale=22.0, nOctaves=4)
 
 		elif params['kp'] == 'lucid':
 			
-			#Currently the daisy.detect is throwing an error consistent with detectors that do not have an associated descriptor
-			#OpenCV Error: The function/feature is not implemented () in detectAndCompute
 			return cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6),cv2.xfeatures2d.LUCID_create(lucid_kernel=1,blur_kernel=1)		
 			
 	def _getKeypoints(self):
@@ -72,3 +65,7 @@ class image(object):
 		
 		print self.img.shape
 		return self.desc.compute(self.img,self.keypoints)[1]
+		
+	def computeKP(self,param):
+		
+		return self._getDetector(params)
