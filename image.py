@@ -5,6 +5,7 @@ import cv2
 #https://docs.opencv.org/3.3.0/d2/d75/namespacecv.html
 #https://docs.opencv.org/3.1.0/d3/df6/namespacecv_1_1xfeatures2d.html
 #https://docs.opencv.org/3.3.1/d1/db4/group__xfeatures2d.html
+
 class image(object):
 
 	#TODO: Implement methods to recompute a new detector/descriptor without reloading the image and/or loading multiple copies of the same image
@@ -13,7 +14,7 @@ class image(object):
 		tempImg = cv2.imread(img)
 		self.img = cv2.resize(tempImg, None, fx=params['scale'], fy=params['scale'], interpolation=cv2.INTER_AREA)
 		self.params = params
-		self.detector,self.desc,self.params = self._getDetector(self.params)
+		self.detector,self.desc = self._getDetector(self.params)
 		self.keypoints = self._getKeypoints()
 		self.descriptors = self._getDescriptors()
 		self.path = img
@@ -22,7 +23,7 @@ class image(object):
 		
 		if params['kp'] == 'sift':
 			
-			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=params['octave'],contrastThreshold=params['cont'],edgeThreshold=params['edge'],sigma=params['sig'])
+			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=10000,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6)
 			return det_desc, det_desc
 			
 		elif params['kp'] == 'surf':
