@@ -60,28 +60,28 @@ class fundamental(transformation):
 		
 		return cv2.findFundamentalMat(img1pts, img2pts, cv2.RANSAC)
 		
-if __name__ == '__main__':
-
-	descList = ['sift','surf','brisk','orb','kaze','daisy','lucid']
-	
-	#All other descriptors can take a bgr image as input, freak requires a grayscale image
-	#not_working = [freak]
-	
-	params = {'scale':0.15}
-	
-	fundamentals = []
-	
-	for desc in descList:
-		
-		t0 = time.time()
-		params['kp'] = desc
-		print desc
-		fundamentals.append(fundamental('/home/dennis/Documents/View3D/DJI01435.JPG','/home/dennis/Documents/View3D/DJI01436.JPG',params))
-		t1 = time.time()
-		print desc + ' runtime: ' + str(t1 - t0)
-		fundamentals[-1].matches.drawMatches()
-		
-	#kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
-	#kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])
-	
-	
+# if __name__ == '__main__':
+# 
+	# descList = ['sift','surf','brisk','orb','kaze','daisy','lucid']
+	# 
+	# #All other descriptors can take a bgr image as input, freak requires a grayscale image
+	# #not_working = [freak]
+	# 
+	# params = {'scale':0.15}
+	# 
+	# fundamentals = []
+	# 
+	# for desc in descList:
+		# 
+		# t0 = time.time()
+		# params['kp'] = desc
+		# print desc
+		# fundamentals.append(fundamental('/home/dennis/Documents/View3D/DJI01435.JPG','/home/dennis/Documents/View3D/DJI01436.JPG',params))
+		# t1 = time.time()
+		# print desc + ' runtime: ' + str(t1 - t0)
+		# fundamentals[-1].matches.drawMatches()
+		# 
+	# #kp1H = ut.toHomogeneous(x.matches.matchPoints['img1'])
+	# #kp2H = ut.toHomogeneous(x.matches.matchPoints['img2'])
+	# 
+	# 

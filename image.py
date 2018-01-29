@@ -13,7 +13,7 @@ class image(object):
 		tempImg = cv2.imread(img)
 		self.img = cv2.resize(tempImg, None, fx=params['scale'], fy=params['scale'], interpolation=cv2.INTER_AREA)
 		self.params = params
-		self.detector,self.desc = self._getDetector(self.params)
+		self.detector,self.desc,self.params = self._getDetector(self.params)
 		self.keypoints = self._getKeypoints()
 		self.descriptors = self._getDescriptors()
 		self.path = img
@@ -22,7 +22,7 @@ class image(object):
 		
 		if params['kp'] == 'sift':
 			
-			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6)
+			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=0,nOctaveLayers=params['octave'],contrastThreshold=params['cont'],edgeThreshold=params['edge'],sigma=params['sig'])
 			return det_desc, det_desc
 			
 		elif params['kp'] == 'surf':
@@ -63,7 +63,6 @@ class image(object):
 		
 	def _getDescriptors(self):
 		
-		print self.img.shape
 		return self.desc.compute(self.img,self.keypoints)[1]
 		
 	def computeKP(self,param):
