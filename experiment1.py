@@ -11,15 +11,17 @@ if __name__ == '__main__':
 	sess = tf.Session()
 	
 	#Define the model variables for sift
-	#nfeatures = tf.Variable([0], dtype=tf.float32)
+	#*************NORMALIZE THE VARIABLES***********************************
 	nOctaveLayers = tf.Variable([3], dtype=tf.float32, name='oct')
 	contrastThreshold = tf.Variable([0.04], dtype=tf.float32, name='cont')
 	edgeThreshold = tf.Variable([10], dtype=tf.float32, name='edge')
 	sigma = tf.Variable([1.6], dtype=tf.float32,name='sigma')
 	
+	#Initialize x
 	x = tf.placeholder(tf.float32)
 	
 	#Construct the linear model
+	#*********************Replace this with a better model
 	linear_model = (nOctaveLayers + contrastThreshold + edgeThreshold + sigma)*x
 	
 	#Initialize all variables to default values
@@ -29,10 +31,11 @@ if __name__ == '__main__':
 	sess.run(init)
 	
 	#Create a placeholder for the variable y
+	#*******************Replace this with a better model
 	y = tf.placeholder(tf.float32)
 	fn = (nOctaveLayers + contrastThreshold + edgeThreshold + sigma)*y
 	
-	#Define the minimum sum of squares loss function
+	#Define the loss function
 	squared_deltas = tf.square(linear_model - fn)
 	loss = tf.reduce_sum(squared_deltas)
 	
@@ -77,6 +80,13 @@ if __name__ == '__main__':
 		cont = tf.get_default_graph().get_tensor_by_name('cont:'+str(0))
 		edge = tf.get_default_graph().get_tensor_by_name('edge:'+str(0))
 		sigma = tf.get_default_graph().get_tensor_by_name('sigma:'+str(0))
+
+		print i
+		print 'octave = ' + str(sess.run(octave))
+		print 'cont = ' + str(sess.run(cont))
+		print 'edge = ' + str(sess.run(edge))
+		print 'sigma = ' + str(sess.run(sigma))
+		print '\n'
 			
 		for img in imgList[1:]:
 			
@@ -84,12 +94,6 @@ if __name__ == '__main__':
 			
 			img1 = img
 
-			print i
-			print 'octave = ' + str(sess.run(octave))
-			print 'cont = ' + str(sess.run(cont))
-			print 'edge = ' + str(sess.run(edge))
-			print 'sigma = ' + str(sess.run(sigma))
-			print '\n'
 			fundamentals.append(tn.fundamental(img1,img2,params))
 			
 			matchCount = fundamentals[-1].matchCount()
@@ -105,8 +109,10 @@ if __name__ == '__main__':
 			
 		tout1 = time.time()
 		
-		sess.run(train, {x: x_ex, y: x_obs})
-		
+		sess.run(train, {x: inlierCount, y: matchCount})
+		print inlierCount
+		print matchCount
+		print 'bamn'
 		print 'total time: ' + str(tout1 - tout0)
 		
 		print costSum
@@ -114,3 +120,6 @@ if __name__ == '__main__':
 		costSum = costSum/len(fundamentals)
 		
 		print costSum
+		
+		#Update the parameters and recompute the key points and descriptors
+		
