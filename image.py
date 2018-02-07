@@ -8,7 +8,7 @@ import cv2
 
 class image(object):
 
-	#TODO: Implement methods to recompute a new detector/descriptor without reloading the image and/or loading multiple copies of the same image
+	#TODO: Implement methods to recompute a new detector/descriptor without reloading the image and/or loading multiple copies of the same imagcd e
 	def __init__(self, img, params):
 		
 		tempImg = cv2.imread(img)
