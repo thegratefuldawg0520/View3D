@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 #https://docs.opencv.org/2.4/modules/features2d/doc/feature_detection_and_description.html
 #https://docs.opencv.org/3.3.0/d3/df6/namespacecv_1_1xfeatures2d.html
@@ -18,6 +19,7 @@ class image(object):
 		self.keypoints = self._getKeypoints()
 		self.descriptors = self._getDescriptors()
 		self.path = img
+		self.K = np.eye(3)
 		
 	def _getDetector(self,params):
 		
@@ -69,3 +71,22 @@ class image(object):
 	def computeKP(self,param):
 		
 		return self._getDetector(params)
+	
+	def setK(self,K):
+		
+		if K.shape == (3,3):
+			
+			self.K = K
+		
+			return True
+			
+		else:
+			
+			return 'Incorrect dimensions for K'
+		
+		
+	def showImage(self):
+		
+		cv2.imshow('Image',self.img)
+		cv2.waitKey()
+		cv2.destroyAllWindows()
