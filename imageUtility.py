@@ -32,7 +32,22 @@ def loadCameras(filename):
 			imageDict[entry[0]] = newImage
 			
 		return imageDict
+
+def createPCFile(pc, filename):
+	
+	outfile = open(filename,'w')
+	
+	outfile.write('X Y Z\n')
+	
+	for pt in pc:
+		
+		#print pt.dot(pt)
+		#print pt
+		outfile.write(str(pt[0]) + ' ' + str(pt[1]) + ' ' + str(pt[2]) + '\n')
+		
+	outfile.close()
+	
+	return True
 			
-			
-loadCameras('/home/doopy/Documents/View3D/View3D_0_1/Glacier/Processing Results/Cameras/cameras.txt')
+#loadCameras('/home/doopy/Documents/View3D/View3D_0_1/Glacier/Processing Results/Cameras/cameras.txt')
 
