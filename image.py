@@ -85,7 +85,7 @@ class image(object):
 			return 'Incorrect dimensions for K'
 		
 		
-	def showImg(self):
+	def showImage(self):
 		
 		cv2.imshow('Image',self.img)
 		cv2.waitKey()

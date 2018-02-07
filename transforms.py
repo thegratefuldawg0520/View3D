@@ -85,27 +85,30 @@ class fundamental(transformation):
 		
 		W = np.array([[0,-1,0],[1,0,0],[0,0,1]])
 		
-		kp1 = []
-		kp2 = []
+		self.matches.matchPoints['img2'].shape
 		
-		for i in range(len(self.img1.keypoints)):
-			
-			kp1.append([self.img1.keypoints[i].pt[0],self.img1.keypoints[i].pt[1],1.0])
-			kp2.append([self.img2.keypoints[i].pt[0],self.img2.keypoints[i].pt[1],1.0])
+		kp1 = np.ones((len(self.matches.matchPoints['img1']),1,3))
+		kp2 = np.ones((len(self.matches.matchPoints['img2']),1,3))
+		
+		kp1[:,:,0:2] = self.matches.matchPoints['img1']
+		kp2[:,:,0:2] = self.matches.matchPoints['img2']
 		
 		R = U.dot(W).dot(Vt)
 		T = U[:,2]
 		
 		if not self._in_front(kp1,kp2,R,T):
 			T = -U[:,2]
+			print 'a'
 		
 		if not self._in_front(kp1,kp2,R,T):
 			R = U.dot(W.T).dot(Vt)
 			T = U[:,2]
+			print 'b'
 			
 		if not self._in_front(kp1,kp2,R,T):
 			T = -U[:,2]
-		
+			print 'c'
+			
 		Rt1 = np.hstack((np.eye(3), np.zeros((3, 1))))
 		Rt2 = np.hstack((R, T.reshape(3, 1)))
 
@@ -113,35 +116,28 @@ class fundamental(transformation):
 		
 	def _in_front(self,kp1,kp2,R,T):
 		
-		rot = R
-		trans = T
-		for first, second in zip(kp1, kp2):
-
-			first_z = np.dot(rot[0, :] - second[0]*rot[2, :], trans) / np.dot(rot[0, :] - second[0]*rot[2, :], second)
-			first_3d_point = np.array([first[0] * first_z, second[0] * first_z, first_z])
-			second_3d_point = np.dot(rot.T, first_3d_point) - np.dot(rot.T, trans)
+		for x1,x2 in zip(kp1,kp2):
 			
-		if first_3d_point[2] < 0 or second_3d_point[2] < 0:
 			
-			return False
-		
+			X2 = -R.T.dot(T) + R.T.dot(x2[0])			
+			
 		return True
-			
-	def decompose(self):
-		
-		return cv2.RQDecomp3x3(self.fundamental)
-
-#cv2.decomposeProjectionMatrix
 
 if __name__=="__main__":
 	
-	params = {'scale':0.15,'kp':'sift'}
+	for i in range(2,10):
+		
+		params = {'scale':0.15,'kp':'sift'}
+		
+		img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000' + str(2*i) + '.JPG',params)
+		
+		img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000' + str(2*i-1) + '.JPG',params)
+		
+		F = fundamental(img1,img2,params)
+		
+		#H = homography(img1,img2,params)
 	
-	img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_0002.JPG',params)
+		P_ = F.getCameraMatrices()
+		#P = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]])
 	
-	img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_0002.JPG',params)
-	
-	F = fundamental(img1,img2,params)
-
-	print F.getCameraMatrices()
 	
