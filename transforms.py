@@ -68,8 +68,15 @@ class fundamental(transformation):
 		
 	def _computeFundamental(self,params):
 	
-		img1pts = self.matches.matchPoints['img1']
-		img2pts = self.matches.matchPoints['img2']
+		
+		n1pts = ut.normalize(self.matches.matchPoints['img1'][:,0])
+		n2pts = ut.normalize(self.matches.matchPoints['img2'][:,0])
+		
+		img1pts = np.ones(self.matches.matchPoints['img1'].shape)
+		img2pts = np.ones(self.matches.matchPoints['img2'].shape)
+		
+		img1pts[:,0,:] = n1pts.T
+		img2pts[:,0,:] = n2pts.T
 		
 		return cv2.findFundamentalMat(img1pts, img2pts, cv2.RANSAC)
 	
@@ -123,9 +130,15 @@ class fundamental(transformation):
 
 	def _in_front_of_camera(self,P1,P2,kp1,kp2,title):
 		
-		pts = cv2.triangulatePoints(P1,P2,kp1.T,kp2.T)
+		print kp1.shape
+		k1 = ut.normalize(kp1)
+		k2 = ut.normalize(kp2)
 		
-		ut.createPCFile(pts.T, '/home/dennis/Documents/View3D/pc' + title + '.txt')
+		pts = cv2.triangulatePoints(P1,P2,k1,k2)
+		
+		pts = np.array([pts[0]/pts[3],pts[1]/pts[3],pts[2]/pts[3]])
+		
+		ut.createPCFile(pts.T, '/home/doopy/Documents/View3D/View3D_0_1/pc' + title + '.txt')
 		
 	def _check_epipolar(E,kp1,kp2):
 		
@@ -140,12 +153,12 @@ if __name__=="__main__":
 		
 		params = {'scale':0.15,'kp':'sift'}
 		
-		img1 = im.image('/home/dennis/Documents/View3D/images/DJI0' + str(1765+i) + '.JPG',params)
+		img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 2) + '.JPG',params)
 		
-		img2 = im.image('/home/dennis/Documents/View3D/images/DJI0' + str(1765+i+1) + '.JPG',params)
+		img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 3) + '.JPG',params)
 		
 		F = fundamental(img1,img2,params)
-		
+		#F.matches.drawMatches()
 		#H = homography(img1,img2,params)
 	
 		P_ = F.getCameraMatrices()

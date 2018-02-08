@@ -7,6 +7,14 @@ def toHomogeneous(pts):
 	
 	return temp
 	
+def normalize(pts):
+	
+	#row
+	n1 = 2.0*pts[:,0]/821.0 - 1
+	n2 = 2.0*pts[:,1]/547.0 - 1
+	
+	return np.array([n1,n2])
+	
 def loadCameras(filename):
 	
 	ext = filename.split('.')[-1]
