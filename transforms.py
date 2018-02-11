@@ -4,6 +4,7 @@ import image as im
 import imageUtility as ut
 import time
 import numpy as np
+
 class transformation(object):
 	
 	def __init__(self, img1, img2, params, matches=None):
@@ -68,17 +69,7 @@ class fundamental(transformation):
 		
 	def _computeFundamental(self,params):
 	
-		
-		n1pts = ut.normalize(self.matches.matchPoints['img1'][:,0])
-		n2pts = ut.normalize(self.matches.matchPoints['img2'][:,0])
-		
-		img1pts = np.ones(self.matches.matchPoints['img1'].shape)
-		img2pts = np.ones(self.matches.matchPoints['img2'].shape)
-		
-		img1pts[:,0,:] = n1pts.T
-		img2pts[:,0,:] = n2pts.T
-		
-		return cv2.findFundamentalMat(img1pts, img2pts, cv2.RANSAC)
+		return cv2.findFundamentalMat(self.matches.matchPoints['img1'][:,0], self.matches.matchPoints['img2'][:,0], cv2.RANSAC)
 	
 	def getEssential(self):
 		
@@ -89,7 +80,7 @@ class fundamental(transformation):
 		E = self.getEssential()
 		
 		U, S, Vt = np.linalg.svd(E)
-		
+	    
 		W = np.array([[0,-1,0],[1,0,0],[0,0,1]])
 		
 		R = U.dot(W).dot(Vt)
@@ -130,9 +121,8 @@ class fundamental(transformation):
 
 	def _in_front_of_camera(self,P1,P2,kp1,kp2,title):
 		
-		print kp1.shape
-		k1 = ut.normalize(kp1)
-		k2 = ut.normalize(kp2)
+		k1 = ut.normalize(kp1,547.0,821.0)
+		k2 = ut.normalize(kp2,547.0,821.0)
 		
 		pts = cv2.triangulatePoints(P1,P2,k1,k2)
 		
@@ -146,22 +136,34 @@ class fundamental(transformation):
 			
 			#Epipolar Condition
 			print i.dot(E).dot(j)
-			
+ 
 if __name__=="__main__":
 	
-	for i in range(0,1):
-		
-		params = {'scale':0.15,'kp':'sift'}
-		
-		img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 2) + '.JPG',params)
-		
-		img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 3) + '.JPG',params)
-		
-		F = fundamental(img1,img2,params)
-		#F.matches.drawMatches()
-		#H = homography(img1,img2,params)
+	nOctaveLayers = 3
+	dOctaveLayers = 1
 	
-		P_ = F.getCameraMatrices()
-		#P = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]])
+	contrastThreshold = 0.04
+	dContrastThreshold = 0.01
 	
+	edgeThreshold = 10
+	dEdgeThreshold = 1
 	
+	sigma = 1.6
+	dSigma = 0.1
+	
+	params = {'scale':0.15,
+			  'kp':'sift',
+			  'nOctaveLayers':nOctaveLayers,
+			  'contrastThreshold':contrastThreshold,
+			  'edgeThreshold':edgeThreshold,
+			  'sigma':sigma
+			 }
+         
+	#for i in range(0,3):
+ 
+		#img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 2) + '.JPG',params)
+ 
+		#img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 3) + '.JPG',params)
+ 
+		#F = fundamental(img1,img2,params)
+		

@@ -25,7 +25,7 @@ class image(object):
 		
 		if params['kp'] == 'sift':
 			
-			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=10000,nOctaveLayers=3,contrastThreshold=0.04,edgeThreshold=10,sigma=1.6)
+			det_desc = cv2.xfeatures2d.SIFT_create(nfeatures=10000,nOctaveLayers=params['nOctaveLayers'],contrastThreshold=params['contrastThreshold'],edgeThreshold=params['edgeThreshold'],sigma=params['sigma'])
 			return det_desc, det_desc
 			
 		elif params['kp'] == 'surf':
@@ -68,10 +68,14 @@ class image(object):
 		
 		return self.desc.compute(self.img,self.keypoints)[1]
 		
-	def computeKP(self,param):
+	def computeKP(self,params):
 		
-		return self._getDetector(params)
-	
+		self.detector,self.descriptor = self._getDetector(params)
+		self.keypoints = self._getKeypoints()
+		self.descriptors = self._getDescriptors()
+		
+		return True
+		
 	def setK(self,K):
 		
 		if K.shape == (3,3):
