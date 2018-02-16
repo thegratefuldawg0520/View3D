@@ -30,22 +30,22 @@ class image(object):
 			
 		elif params['kp'] == 'surf':
 			
-			det_desc = cv2.xfeatures2d.SURF_create(nOctaves=4,nOctaveLayers=2)
+			det_desc = cv2.xfeatures2d.SURF_create(nOctaves=params['nOctaves'],nOctaveLayers=params['nOctaveLayers'])
 			return det_desc, det_desc
 
 		elif params['kp'] == 'orb':
 		
-			det_desc = cv2.ORB_create(nfeatures=500, scaleFactor=1.2, nlevels=8, edgeThreshold=31, firstLevel=0, WTA_K=2, patchSize=31)
+			det_desc = cv2.ORB_create(nfeatures=10000, scaleFactor=params['scaleFactor'], nlevels=params['nlevels'], edgeThreshold=params['edgeThreshold'], firstLevel=params['firstLevel'], WTA_K=params['WTA_K'], patchSize=params['patchSize'])
 			return det_desc, det_desc
 		
 		elif params['kp'] == 'brisk':
-		
-			det_desc = cv2.BRISK_create(thresh=30, octaves=3, patternScale=1.0)
+			
+			det_desc = cv2.BRISK_create(thresh=params['thresh'], octaves=params['octaves'], patternScale=params['patternScale'])
 			return det_desc, det_desc
 
 		elif params['kp'] == 'kaze':
 			
-			det_desc = cv2.KAZE_create(threshold=0.001, nOctaves=4, nOctaveLayers=4)
+			det_desc = cv2.KAZE_create(threshold=param['threshold'], nOctaves=param['nOctaves'], nOctaveLayers=param['nOctaveLayers'])
 			return det_desc, det_desc
 
 		elif params['kp'] == 'daisy':
