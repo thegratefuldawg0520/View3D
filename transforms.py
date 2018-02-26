@@ -4,6 +4,7 @@ import image as im
 import imageUtility as ut
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 class transformation(object):
 	
@@ -73,60 +74,79 @@ class fundamental(transformation):
 	
 	def getEssential(self):
 		
-		return self.img1.K.T.dot(self.fundamental).dot(self.img2.K)
-	
-	def getCameraMatrices(self):
+		temp = np.dot(self.img1.K.T,np.dot(self.fundamental,self.img2.K))
 		
-		E = self.getEssential()
+		U, S, Vt = np.linalg.svd(temp)
 		
-		U, S, Vt = np.linalg.svd(E)
-	    
+		#Why?!?
+		if np.linalg.det(np.dot(U,Vt)) < 0:
+			
+			Vt = -Vt
+			
+		E = np.dot(U, np.dot(np.diag([1,1,0]), Vt))
+		
+		return E,U,np.diag([1,1,0]),Vt
+		
+	def getCameraMatrices(self,i):
+		
+		E,U,S,Vt = self.getEssential()
+		print E
+		print np.dot(self.img1.K.T,np.dot(self.fundamental,self.img2.K))
+		print cv2.findEssentialMat(self.matches.matchPoints['img1'][:,0], self.matches.matchPoints['img2'][:,0], self.img1.K, cv2.RANSAC)[0]
+		input()
 		W = np.array([[0,-1,0],[1,0,0],[0,0,1]])
 		
-		R = U.dot(W).dot(Vt)
-		
+		R = np.dot(U,np.dot(W,Vt))
 		T = U[:,2]
 		
-		if round(np.linalg.det(R)) == -1.0:
-			
-			R = -R
-			
-		if round(np.linalg.det(R)) != 1.0 or round(T.dot(T)) != 1.0:
-			
-			print 'not a valid decomposition'
-			
-			return False
-
 		P1 = np.hstack((np.eye(3), np.zeros((3, 1))))
-		P2 = np.hstack((R, T.reshape(3, 1)))
+		P2 = np.dot(self.img2.K,np.hstack((R, T.reshape(3, 1))))
+		print P2
 		
-		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],'a'):
-			
+		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],str(i) + 'a'):
+		 
 			T = -T
-			P2 = np.hstack((R, T.reshape(3, 1)))
-		
-		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],'b'):
-			
+			P2 = np.dot(self.img2.K,np.hstack((R, T.reshape(3, 1))))
+			print P2
+		 
+		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],str(i) + 'b'):
+		 
 			R = U.dot(W.T).dot(Vt)
-			P2 = np.hstack((R, T.reshape(3, 1)))
-		
-		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],'c'):
-			
+			P2 = np.dot(self.img2.K,np.hstack((R, T.reshape(3, 1))))
+			print P2
+		if not self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],str(i) + 'c'):
+			 
 			T = -T
-			P2 = np.hstack((R, T.reshape(3, 1)))
-			self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],'d')
-			
+			P2 = np.dot(self.img2.K,np.hstack((R, T.reshape(3, 1))))
+			self._in_front_of_camera(P1,P2,self.matches.matchPoints['img1'][:,0,:],self.matches.matchPoints['img2'][:,0,:],str(i) + 'd')
+			print P2
 		print '*****************************'
 		
 
 	def _in_front_of_camera(self,P1,P2,kp1,kp2,title):
 		
-		k1 = ut.normalize(kp1,547.0,821.0)
-		k2 = ut.normalize(kp2,547.0,821.0)
+		pts = cv2.triangulatePoints(P1,P2,kp1.T,kp2.T)
 		
-		pts = cv2.triangulatePoints(P1,P2,k1,k2)
+		#pts = np.array([pts[0]/pts[3],pts[1]/pts[3],pts[2]/pts[3]])
+		T = pts[3]
+		print T
+		M = P1[:,0:3]
+		print M
+		p4 = P1[:,3]
+		print p4
+		m3 = M[2,:]
+		print m3
 		
-		pts = np.array([pts[0]/pts[3],pts[1]/pts[3],pts[2]/pts[3]])
+		x = np.dot(P1,pts)
+		print x
+		w = x[2]
+		print w
+		print pts
+		pts = pts/w
+		print pts
+		print kp1
+		input()
+		pts[3] = np.sign(np.linalg.det(M)*w)/(T*np.linalg.norm(m3))
 		
 		ut.createPCFile(pts.T, '/home/doopy/Documents/View3D/View3D_0_1/pc' + title + '.txt')
 		
@@ -151,19 +171,36 @@ if __name__=="__main__":
 	sigma = 1.6
 	dSigma = 0.1
 	
-	params = {'scale':0.15,
+	params = {'scale':1.0,
 			  'kp':'sift',
 			  'nOctaveLayers':nOctaveLayers,
 			  'contrastThreshold':contrastThreshold,
 			  'edgeThreshold':edgeThreshold,
 			  'sigma':sigma
 			 }
-         
-	#for i in range(0,3):
+	K = np.array([[1520.4, 0., 302.32], [0, 1525.9, 246.87], [0, 0, 1]])
+	img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/templeRing/templeR0001.png',params)
+	img1.setK(K)
+    
+	for i in range(1,5):
  
-		#img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 2) + '.JPG',params)
- 
-		#img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000'  + str(2*i + 3) + '.JPG',params)
- 
+		img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/templeRing/templeR000'  + str(i + 1) + '.png',params)
+		img2.setK(K)
+
+		match = mt.matches(img1,img2,params)
+		match.drawMatches()
+		E = cv2.findEssentialMat(match.matchPoints['img1'][:,0], match.matchPoints['img2'][:,0], K, cv2.RANSAC)[0]
+		print match.matchPoints['img1'][:,0]
+		correctedMatches = cv2.correctMatches(E,match.matchPoints['img1'][:,0],match.matchPoints['img2'][:,0])
+		pose = cv2.recoverPose(E, match.matchPoints['img1'][:,0], match.matchPoints['img2'][:,0],K,True)
+		P1 = np.dot(K,np.hstack((np.eye(3),np.zeros((3, 1)))))
+		P2 = np.dot(K,np.hstack((pose[1],pose[2])))
+		print P1
+		pts = cv2.triangulatePoints(P1,P2,match.matchPoints['img1'][:,0].T,match.matchPoints['img2'][:,0].T)
+		pts = np.array([pts[0]/pts[3],pts[1]/pts[3],pts[2]/pts[3]])
+		ut.createPCFile(pts.T, '/home/doopy/Documents/View3D/View3D_0_1/pc' + str(i) + '.txt')
+
+		img1 = img2
 		#F = fundamental(img1,img2,params)
 		
+		#F.getCameraMatrices(i)

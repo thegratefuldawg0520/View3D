@@ -71,10 +71,13 @@ imageSet = openImages(imgRange,imgDir,imgParams,'glacier')
 
 minima = False
 
+ptResults = []
+
 while not minima:
 
 	print 'Computing y'
 	y = computeOutliers(imageSet,imgParams)
+	ptResults.append([imgParams,y])
 	print y
 	print '\n'
 	
@@ -114,7 +117,6 @@ while not minima:
 			
 	print 'gradient'
 	print gradient
-	input()
 	
 	minima = True
 	
@@ -128,19 +130,24 @@ while not minima:
     	
 		if lgrad < rgrad and lgrad < 0:
     		
-			print 'rgrad'
+			print 'lgrad'
 			imgParams[parameter] = imgParams[parameter] - params[parameter]['step']
 			minima = False
     	
 		elif rgrad < lgrad and rgrad < 0:
     		
-			print 'lgrad'
+			print 'rgrad'
 			imgParams[parameter] = imgParams[parameter] + params[parameter]['step']
 			minima = False
     		
 	print 'end of loop'
 
-	input()
-    	
+outfile = open('results.txt','w')
+
+for line in ptResults:
+	
+	outfile.write(line)
+
+outfile.close()
     	
 
