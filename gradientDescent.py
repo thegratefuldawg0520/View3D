@@ -42,23 +42,23 @@ def computeOutliers(imageSet,imgParams):
 	return outlierSum
 	
 nOctaveLayers = 3
-contrastThreshold = 0.04
-edgeThreshold = 10
+contrastThreshold = 0.03
+edgeThreshold = 9
 sigma = 1.6
 
-imgDir = {'glacier':{'dir':'/home/doopy/Documents/View3D/View3D_0_1/exp1/glacier/','ext':'.JPG'},
-            'wbnp':{'dir':'/home/doopy/Documents/View3D/View3D_0_1/exp1/wbnp/','ext':'.JPG'},
-            'desk':{'dir':'/home/doopy/Documents/View3D/View3D_0_1/exp1/desk/','ext':'.png'}
+imgDir = {'glacier':{'dir':'/home/dennis/Documents/View3D/images/glacier/','ext':'.JPG'},
+            'wbnp':{'dir':'/home/dennis/Documents/View3D/images/wbnp/','ext':'.JPG'},
+            'desk':{'dir':'/home/dennis/Documents/View3D/images/cathedral/','ext':'.JPG'}
            }
 
-imgRange = range(1,10)
+imgRange = range(1,9)
 
 imgParams = {'scale':0.15,
           'kp':'sift',
           'nOctaveLayers':3,
-          'contrastThreshold':0.04,
-          'edgeThreshold':10,
-          'sigma':1.6
+          'contrastThreshold':0.04,#Threshold for 
+          'edgeThreshold':10,#2x2 hessian to remove edges that are not corners. The threshold is the ratio between eigenvalues
+          'sigma':1.7
          }
 
 params = {'nOctaveLayers':{'step':1,'bdy':6},
@@ -71,13 +71,32 @@ imageSet = openImages(imgRange,imgDir,imgParams,'glacier')
 
 minima = False
 
-ptResults = []
+ptResults = {'scale':[],
+          'kp':[],
+          'nOctaveLayers':[],
+          'contrastThreshold':[],
+          'edgeThreshold':[],
+          'sigma':[],
+          'y':[]
+         }
 
 while not minima:
 
 	print 'Computing y'
 	y = computeOutliers(imageSet,imgParams)
-	ptResults.append([imgParams,y])
+	
+	for parameter in params.keys():
+    	
+		ptResults[parameter].append(imgParams[parameter])
+	
+	ptResults['y'].append(y)
+	
+	for parameter in params.keys():
+		
+		plt.plot(ptResults[parameter],ptResults['y'])
+		plt.title(parameter)
+		plt.show()
+		
 	print y
 	print '\n'
 	
@@ -139,14 +158,17 @@ while not minima:
 			print 'rgrad'
 			imgParams[parameter] = imgParams[parameter] + params[parameter]['step']
 			minima = False
-    		
+    
 	print 'end of loop'
 
 outfile = open('results.txt','w')
 
 for line in ptResults:
 	
-	outfile.write(line)
+	outfile.write(line[0])
+	outfile.write('\n')
+	outfile.write(line[1])
+	outfile.write('\n')
 
 outfile.close()
     	

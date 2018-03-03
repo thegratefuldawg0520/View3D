@@ -39,22 +39,26 @@ if __name__=="__main__":
 			 }
 			 
 	K = np.array([[1520.4, 0., 302.32], [0, 1525.9, 246.87], [0, 0, 1]])
-	img1 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_0002.JPG',params)
+	img1 = im.image('/home/dennis/Documents/View3D/images/glacier/3.JPG',params)
 	img1.setK(K)
 	window_size = 3
 	min_disp = 0
 	num_disp = 112-min_disp
 	
-	for i in range(2,6):
+	for i in range(0,6):
 		
 		print i
-		print i+4
-		img2 = im.image('/home/doopy/Documents/View3D/View3D_0_1/Glacier/img/EP-00-00019_0044_000' + str(i + 1) + '.JPG',params)
+		print (i+6)%9
+		img2 = im.image('/home/dennis/Documents/View3D/images/glacier/' + str((i+6)%9) + '.JPG',params)
 		img2.setK(K)
 
 		stereo = cv2.StereoSGBM_create(minDisparity=min_disp,numDisparities=num_disp,blockSize=window_size)
 		
 		disparity = stereo.compute(img1.img, img2.img).astype(np.float32)/16.0
+		print disparity.max()
+		print disparity.min()
+		cv2.imshow('disparity',disparity)
+		cv2.waitKey()
 		
 		f = 1520.0
 		Q = np.float32([[1, 0, 0, -302.32],
@@ -72,7 +76,7 @@ if __name__=="__main__":
 		pts = []
 		
 		outfile = open('pts' + str(i) + '.txt','w')
-		outfile.write('x y z r g b')
+		outfile.write('x y z r g b\n')
 		
 		for i in range(len(out_points)):
 			
