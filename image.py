@@ -10,7 +10,7 @@ import numpy as np
 class image(object):
 
 	#TODO: Implement methods to recompute a new detector/descriptor without reloading the image and/or loading multiple copies of the same imagcd e
-	def __init__(self, img, params):
+	def __init__(self, img, K, params):
 		
 		tempImg = cv2.imread(img)
 		self.img = cv2.resize(tempImg, None, fx=params['scale'], fy=params['scale'], interpolation=cv2.INTER_AREA)
@@ -19,7 +19,8 @@ class image(object):
 		self.keypoints = self._getKeypoints()
 		self.descriptors = self._getDescriptors()
 		self.path = img
-		self.K = np.eye(3)
+		self.K = K
+		self.P = np.hstack((np.eye(3), np.zeros((3, 1))))
 		
 	def _getDetector(self,params):
 		
@@ -75,6 +76,7 @@ class image(object):
 		self.descriptors = self._getDescriptors()
 		
 		return True
+
 		
 	def setK(self,K):
 		
@@ -88,6 +90,36 @@ class image(object):
 			
 			return 'Incorrect dimensions for K'
 		
+	def eulerAngles(self):
+		
+		P = self.P
+
+		p = np.arcsin(P[0,2])
+		o = np.arctan2(-P[1,2],P[2,2])
+		k = np.arctan2(-P[0,1],P[0,0])
+		
+		return np.array([o,p,k])
+
+	def rMatrix(self,o,p,k):
+		
+		coso = np.cos(o)
+		sino = np.sin(o)
+		cosp = np.cos(p)
+		sinp = np.sin(o)
+		cosk = np.cos(k)
+		sink = np.sin(o)
+		
+		r11 = cosp*cosk
+		r12 = -cosp*sink
+		r13 = sinp
+		r21 = coso*sink + sino*sinp*cosk
+		r22 = coso*cosk - sino*sinp*sink
+		r23 = -sino*cosp
+		r31 = sino*sink - coso*sinp*cosk
+		r32 = sino*cosk + coso*sinp*sink
+		r33 = coso*cosp
+		
+		return np.array([[r11,r12,r13],[r21,r22,r23],[r31,r32,r33]])
 		
 	def showImage(self):
 		
